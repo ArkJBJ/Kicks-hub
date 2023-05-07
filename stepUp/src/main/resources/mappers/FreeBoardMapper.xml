@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+ <mapper namespace="proj.stepUp.mapper.freeBoardMapper">
+ 	<select id="selectAll" resultType="FreeBoardVO" parameterType="searchVO">
+ 		select *
+ 			from free_tb b, user_tb u
+ 			where b.userIndex = u.userIndex
+ 			<if test='searchType != null and searchType eq "title"'>
+ 				and freeTitle like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "content"'>
+ 				and freeCnt like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "writer"'>
+ 				and userNick like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='userIndex != 0'>  
+ 				where userIndex = #{userIndex}
+ 			</if>
+ 			order by freeIndex desc
+ 	</select>
+ 	
+ 	<select id="userFree" resultType="FreeBoardVO" parameterType="searchVO">
+ 		select *
+ 			from free_tb b, user_tb u
+ 			where b.userIndex = u.userIndex
+ 			  and u.userIndex = #{userIndex}
+ 			  order by b.freeIndex desc
+ 			  limit #{start}, #{perPage}
+ 	</select>
+ 	
+ 	<select id="userCntTotal" parameterType="int" resultType="int">
+ 		select count(*) from free_tb
+ 		where userIndex = #{userIndex}
+ 	</select>
+ 	
+ 	
+ 	<select id="cntTotal" resultType="freeBoardVO" parameterType="searchVO">
+ 		select count(*) over () as total from free_tb b, user_tb u 
+ 			where b.userIndex = u.userIndex
+ 			<if test='searchType != null and searchType eq "title"'>
+ 				and freeTitle like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "content"'>
+ 				and freeCnt like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "writer"'>
+ 				and userNick like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='userIndex != 0'>  
+ 				where userIndex = #{userIndex}
+ 			</if>
+ 	</select>
+
+	
+	<select id="selectByIndex" resultType="FreeBoardVO" parameterType="int">
+		select *
+ 			from free_tb b, user_tb u
+ 			where b.userIndex = u.userIndex
+ 			  and b.freeIndex = #{freeIndex}
+	</select>
+	
+	<insert id="insert" parameterType="FreeBoardVO">
+	
+		insert into free_tb(
+		<![CDATA[
+			freeCnt 
+			, freeTitle 
+			, userIndex 
+			)values(
+			#{freeCnt} 
+			, #{freeTitle} 
+			, #{userIndex} 
+			)
+			]]>
+		<selectKey resultType="int" order="AFTER" keyProperty="freeIndex">
+			select max(freeIndex) from free_tb
+		</selectKey>
+	</insert>
+	
+	<update id="update" parameterType="FreeBoardVO">
+		update free_tb
+			set freeCnt = #{freeCnt}
+			, freeTitle = #{freeTitle}
+			where freeIndex = #{freeIndex}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		delete
+			from free_tb
+ 			where freeIndex = #{freeIndex}
+	</delete>
+ 	
+	<update id="hitcount" parameterType="int">
+		update free_tb
+			set freeHit = freeHit + 1
+			where freeIndex = #{freeIndex}
+	</update>
+ 	
+</mapper>

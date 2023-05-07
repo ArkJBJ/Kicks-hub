@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="proj.stepUp.mapper.orderMapper">
+  	<select id="selectOrderNum" resultType="int" parameterType="String">
+  		select count(*) from order_tb where orderNum = #{orderNum}
+  	</select>
+  	
+  	<insert id="insertOrder" parameterType="orderVO">
+  		<![CDATA[
+  		insert into order_tb (orderAddr, orderPhone, orderTotalPrice, orderPay, userIndex, orderNum, orderPost, orderName, orderBuyerName)
+  		values (#{orderAddr}, #{orderPhone}, #{orderTotalPrice}, #{orderPay}, #{userIndex}, #{orderNum}, #{orderPost}, #{orderName}, #{orderBuyerName})
+  		]]>
+  		<selectKey resultType="int" order="AFTER" keyProperty="orderIndex">
+  			select MAX(orderIndex) from order_tb
+  		</selectKey>
+  	</insert>
+  	
+  	<select id="selectByOrder" parameterType="reviewVO" resultType="int">
+  		select count(*) from order_tb o left join order_item_tb oi on oi.orderIndex = o.orderIndex
+  		left join size_tb s on oi.sizeIndex = s.sizeIndex
+  		where o.userIndex = #{userIndex}
+  		and s.prdIndex = #{prdIndex}
+  	</select>
+  	
+  	<select id="selectManager" parameterType="searchVO" resultType="orderVO">
+  		select * from order_tb where 1 = 1
+  		<if test="searchValue != '' and searchType eq 'num'">
+  			and orderNum like concat('%',#{searchValue},'%')
+  		</if>
+  		<if test="searchValue != '' and searchType eq 'name'">
+  			and orderName like concat('%',#{searchValue},'%')
+  		</if>
+  		<if test="statusShow eq 'show'">
+  			and orderStatus = 'N'
+  		</if>
+  		<if test="sort eq 'new'">
+  			order by orderDate desc
+  		</if>
+  		<if test="sort eq 'old'">
+  			order by orderDate
+  		</if> 	 		  		
+  		limit #{start}, #{perPage}
+  	</select>
+  	
+  	<select id="selectManagerCount" parameterType="searchVO" resultType="int">
+  		select count(*) from order_tb where 1 = 1 
+  		<if test="searchValue != '' and searchType eq 'num'">
+  			and orderNum like concat('%',#{searchValue},'%')
+  		</if>
+  		<if test="searchValue != '' and searchType eq 'name'">
+  			and orderName like concat('%',#{searchValue},'%')
+  		</if>
+  		<if test="statusShow eq 'show'">
+  			and orderStatus = 'N'
+  		</if>
+  	</select>
+  	
+  	<select id="selectByOrderIndex" parameterType="int" resultType="orderVO">
+  		select * from order_tb o, user_tb u where o.userIndex = u.userIndex and o.orderIndex = #{orderIndex}
+  	</select>
+  	
+  	<update id="updateOrderStatus" parameterType="orderVO">
+  		update order_tb set 
+	  	<choose>
+			<when test="orderStatus eq 'YS'">orderStatus = 'N'</when>
+			<when test="orderStatus eq 'NS'">orderStatus = 'Y'</when>
+		</choose>
+  		where orderIndex = #{orderIndex}
+  	</update>
+  	
+  	<select id="selectUser" parameterType="searchVO" resultType="orderVO">
+  		select * from order_tb where userIndex = #{userIndex}
+  		order by orderDate desc
+  		limit #{start}, #{perPage}
+  	</select>
+  	
+  	 <select id="selectUserCount" parameterType="int" resultType="int">
+  		select count(*) from order_tb where userIndex = #{userIndex}
+  	</select>
+  </mapper>

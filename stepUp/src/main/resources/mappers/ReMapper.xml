@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+ <mapper namespace="proj.stepUp.mapper.reMapper">
+ 	<select id="selectAll" parameterType="int" resultType="ReVO">
+ 		select r.*, u.*, f.*, sub.total
+		from re_tb r
+		inner join user_tb u on r.userIndex = u.userIndex
+		inner join free_tb f on r.freeIndex = f.freeIndex
+		inner join (select freeIndex, count(*) as total from re_tb group by freeIndex) sub on sub.freeIndex = f.freeIndex
+		where f.freeIndex = #{freeIndex}
+		order by reIndex desc
+ 	</select>
+	
+	<insert id="insert" parameterType="ReVO">
+	
+		insert into re_tb(
+			reCnt 
+			, freeIndex
+			, userIndex 
+			)values(
+			#{reCnt} 
+			, #{freeIndex}
+			, #{userIndex} 
+			)
+	</insert>
+	
+	<update id="update" parameterType="ReVO">
+		update re_tb
+			set reCnt = #{reCnt}
+			where reIndex = #{reIndex}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		delete
+			from re_tb
+ 			where reIndex = #{reIndex}
+	</delete>
+ 	
+ 	
+ 	
+ 	<select id="qnaselectAll" parameterType="int" resultType="ReVO">
+ 		select r.*, u.*, f.*, sub.total
+		from qnare_tb r
+		inner join user_tb u on r.userIndex = u.userIndex
+		inner join qna_tb f on r.qnaIndex = f.qnaIndex
+		inner join (select qnaIndex, count(*) as total from qnare_tb group by qnaIndex) sub on sub.qnaIndex = f.qnaIndex
+		where f.qnaIndex = #{qnaIndex}
+		order by qnareIndex desc
+ 	</select>
+	
+	<insert id="qnainsert" parameterType="ReVO">
+	
+		insert into qnare_tb(
+			qnareCnt 
+			, qnaIndex
+			, userIndex 
+			)values(
+			#{qnareCnt} 
+			, #{qnaIndex}
+			, #{userIndex} 
+			)
+	</insert>
+	
+	<update id="qnaupdate" parameterType="ReVO">
+		update qnare_tb
+			set qnareCnt = #{qnareCnt}
+			where qnareIndex = #{qnareIndex}
+	</update>
+	
+	<delete id="qnadelete" parameterType="int">
+		delete
+			from qnare_tb
+ 			where qnareIndex = #{qnareIndex}
+	</delete>
+ 	
+ 	
+</mapper>

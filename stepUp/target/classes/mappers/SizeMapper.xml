@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="proj.stepUp.mapper.sizeMapper">
+  	<insert id="insertSize" parameterType="sizeVO">
+  		insert into size_tb (prdIndex, sizeKind, sizeStock) values(#{prdIndex}, #{sizeKind}, #{sizeStock})
+  	</insert>
+  	
+  	<select id="selectByPrdIndex" parameterType="int" resultType="sizeVO">
+  		select * from size_tb where prdIndex = #{prdIndex} order by sizeKind
+  	</select>
+  	
+  	<update id="updateSizeStock" parameterType="sizeVO">
+  		update size_tb set sizeStock = #{sizeStock} where sizeIndex = #{sizeIndex}
+  	</update>
+  	
+  	<select id="selectSizeIndex" parameterType="int" resultType="sizeVO">
+  		select * from size_tb s left join product_tb p on p.prdIndex = s.prdIndex where s.sizeIndex = #{sizeIndex}
+  	</select>
+  	
+  	<update id="updateSubtract" parameterType="orderItemVO">
+  		update size_tb set sizeStock = sizeStock - #{orderItemStock} where sizeIndex = #{sizeIndex}
+  	</update>
+  	
+  	<select id="selectStockCheck" parameterType="orderItemVO" resultType="int">
+  		select count(*) from size_tb where sizeIndex = #{sizeIndex} and sizeStock >= #{orderItemStock}
+  	</select>
+  </mapper>

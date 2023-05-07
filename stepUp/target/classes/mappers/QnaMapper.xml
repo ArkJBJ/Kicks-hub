@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+ <mapper namespace="proj.stepUp.mapper.qnaMapper">
+ 	<select id="selectAll" resultType="QnaVO" parameterType="searchVO">
+ 		select *
+ 			from qna_tb b, user_tb u 
+ 			where b.userIndex = u.userIndex
+ 			<if test='searchType != null and searchType eq "title"'>
+ 				and qnaTitle like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "content"'>
+ 				and qnaCnt like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "writer"'>
+ 				and userNick like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='userIndex != 0'>  
+ 				and userIndex = #{userIndex}
+ 			</if>
+ 			order by qnaIndex desc
+ 	</select>
+ 	
+ 	<select id="userQna" resultType="QnaVO" parameterType="searchVO">
+ 		select *
+ 			from qna_tb b, user_tb u
+ 			where b.userIndex = u.userIndex
+ 			  and u.userIndex = #{userIndex}
+ 			  order by b.qnaWdate desc
+ 			  limit #{start}, #{perPage}
+ 	</select>
+ 	
+ 	<select id="cntTotal" resultType="QnaVO" parameterType="searchVO">
+ 		select count(*) over () as total from qna_tb b, user_tb u 
+ 			where b.userIndex = u.userIndex
+ 			<if test='searchType != null and searchType eq "title"'>
+ 				and qnaTitle like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "content"'>
+ 				and qnaCnt like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "writer"'>
+ 				and userNick like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='userIndex != 0'>  
+ 				where userIndex = #{userIndex}
+ 			</if>
+ 	</select>
+	
+	<select id="myPageCnTotal" resultType="int" parameterType="int">
+		select count(*) from qna_tb
+		where userIndex = #{userIndex}
+	</select>
+	
+	<select id="selectByIndex" resultType="QnaVO" parameterType="int">
+ 		select *
+ 			from qna_tb b, user_tb u
+ 			where b.userIndex = u.userIndex
+ 			  and b.qnaIndex = #{qnaIndex}
+	</select>
+	
+	<insert id="insert" parameterType="QnaVO">
+	
+		insert into qna_tb(
+		<![CDATA[
+			qnaCnt 
+			, qnaTitle 
+			, userIndex 
+			)values(
+			#{qnaCnt} 
+			, #{qnaTitle} 
+			, #{userIndex} 
+			)
+			]]>
+		<selectKey resultType="int" order="AFTER" keyProperty="qnaIndex">
+			select max(qnaIndex) from qna_tb
+		</selectKey>
+	</insert>
+	
+	<update id="update" parameterType="QnaVO">
+		update qna_tb
+			set qnaCnt = #{qnaCnt}
+			, qnaTitle = #{qnaTitle}
+			where qnaIndex = #{qnaIndex}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		delete
+			from qna_tb
+ 			where qnaIndex = #{qnaIndex}
+	</delete>
+
+ 	<update id="qnarsp" parameterType="QnaVO">
+		update qna_tb
+			set qnaRsp = #{qnaRsp}
+			where qnaIndex = #{qnaIndex}
+ 	</update>
+ 	
+ 	<select id="restrictList" parameterType="UserVO" resultType="UserVO">
+ 		select *
+ 			from user_tb
+ 			where userGrade = 'F'
+ 	</select>
+ 	
+ 	<update id="restrict" parameterType="UserVO" >
+	   
+	    update user_tb 
+	    	set userGrade=#{userGrade} where userId=#{userId}
+	</update>
+ 	
+ 	<select id="adminrsp" parameterType="int" resultType="reVO">
+ 		select *
+ 			from qnare_tb b, user_tb u
+ 			where b.userIndex = u.userIndex
+            and userGrade = 'A' and qnaIndex = #{qnaIndex}
+ 	</select>
+ 	
+ 	<select id="rspList" resultType="QnaVO">
+ 		select *
+ 			from qna_tb
+ 			where qnaRsp = 'N'
+ 	</select>
+ 	
+ 	<select id="rspTotal" resultType="QnaVO" >
+ 		select count(*) over () as total from qna_tb 
+ 			where qnaRsp = 'N'	
+ 	</select>
+
+
+</mapper>

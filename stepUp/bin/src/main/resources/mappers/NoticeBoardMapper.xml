@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+ <mapper namespace="proj.stepUp.mapper.noticeBoardMapper">
+ 	<select id="selectAll" resultType="NoticeBoardVO" parameterType="searchVO">
+ 		select *
+ 			from notice_tb
+ 			
+ 			<if test='searchType != null and searchType eq "title"'>
+ 				where  noticeTitle like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "content"'>
+ 				where  noticeCnt like concat('%',#{searchValue},'%')
+ 			</if>
+ 			order by noticeIndex desc
+	</select>
+	
+	<select id="cntTotal" resultType="NoticeBoardVO" parameterType="searchVO">
+ 		select count(*) over () as total from notice_tb
+ 			<if test='searchType != null and searchType eq "title"'>
+ 				where noticeTitle like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "content"'>
+ 				where noticeCnt like concat('%',#{searchValue},'%')
+ 			</if>
+ 	</select>
+
+	
+	<select id="selectByIndex" resultType="NoticeBoardVO" parameterType="int">
+		select *
+ 			from notice_tb
+ 			where noticeIndex = #{noticeIndex}
+	</select>
+	
+	<insert id="insert" parameterType="NoticeBoardVO">
+	
+		insert into notice_tb(
+		<![CDATA[
+			noticeCnt 
+			, noticeTitle 
+			
+			)values(
+			#{noticeCnt} 
+			, #{noticeTitle} 
+			
+			)
+			]]>
+		<selectKey resultType="int" order="AFTER" keyProperty="noticeIndex">
+			select max(noticeIndex) from notice_tb
+		</selectKey>
+	</insert>
+	
+	<update id="update" parameterType="NoticeBoardVO">
+		update notice_tb
+			set noticeCnt = #{noticeCnt}
+			, noticeTitle = #{noticeTitle}
+			where noticeIndex = #{noticeIndex}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		delete
+			from notice_tb
+ 			where noticeIndex = #{noticeIndex}
+	</delete>
+	
+	
+</mapper>

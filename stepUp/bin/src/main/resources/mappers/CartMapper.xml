@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="proj.stepUp.mapper.cartMapper">
+  	<insert id="insertCart" parameterType="cartVO">
+  		insert into cart_tb (cartStock, userIndex, sizeIndex) values(#{cartStock}, #{userIndex}, #{sizeIndex})
+  	</insert>
+  	
+	<select id="selectAll" resultType="cartVO" parameterType="int">
+		SELECT * FROM cart_tb c
+			LEFT JOIN size_tb s ON c.sizeIndex = s.sizeIndex
+            left join product_tb p ON p.prdIndex = s.prdIndex
+            where c.userIndex = #{userIndex}
+	</select>
+	
+	<delete id="deleteCart" parameterType="cartVO">
+		DELETE FROM cart_tb 
+		WHERE 1 = 1
+		<choose>
+			<when test="cartIndex != 0">
+				and cartIndex = #{cartIndex}
+			</when>
+			<otherwise>
+				and userIndex = #{userIndex} and sizeIndex = #{sizeIndex}
+			</otherwise>
+		</choose>		
+	</delete>
+	
+	<select id="selectCheck" parameterType="cartVO" resultType="int">
+		select count(*) from cart_tb where userIndex = #{userIndex} and sizeIndex = #{sizeIndex}
+	</select>
+</mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+ <mapper namespace="proj.stepUp.mapper.eventBoardMapper">
+ 	<select id="selectAll" resultType="EventBoardVO" parameterType="searchVO">
+ 		select count(*) over () as total, b.*, u.*
+ 			from event_tb b, user_tb u
+ 			where b.userIndex = u.userIndex
+ 			<if test='searchType != null and searchType eq "title"'>
+ 				and eventTitle like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "content"'>
+ 				and eventCnt like concat('%',#{searchValue},'%')
+ 			</if>
+ 			order by eventIndex desc
+ 	</select>
+ 	
+ 	<select id="cntTotal" resultType="EventBoardVO" parameterType="searchVO">
+ 		select count(*) over () as total from event_tb
+ 			<if test='searchType != null and searchType eq "title"'>
+ 				where eventTitle like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "content"'>
+ 				where eventCnt like concat('%',#{searchValue},'%')
+ 			</if>
+ 	</select>
+	
+	
+	
+	<select id="selectByIndex" resultType="EventBoardVO" parameterType="int">
+ 		select *
+ 			from event_tb b, user_tb u
+ 			where b.userIndex = u.userIndex
+ 			  and b.eventIndex = #{eventIndex}
+	</select>
+	
+	<insert id="insert" parameterType="EventBoardVO">
+	
+		insert into event_tb(
+		<![CDATA[
+			eventCnt 
+			, eventTitle 
+			, userIndex 
+			)values(
+			#{eventCnt} 
+			, #{eventTitle} 
+			, #{userIndex} 
+			)
+			]]>
+		<selectKey resultType="int" order="AFTER" keyProperty="eventIndex">
+			select max(eventIndex) from event_tb
+		</selectKey>
+	</insert>
+	
+	<update id="update" parameterType="EventBoardVO">
+		update event_tb
+			set eventCnt = #{eventCnt}
+			, eventTitle = #{eventTitle}
+			where eventIndex = #{eventIndex}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		delete
+			from event_tb
+ 			where eventIndex = #{eventIndex}
+	</delete>
+	
+	<update id="hitcount" parameterType="int">
+		update event_tb
+			set eventHit = eventHit + 1
+			where eventIndex = #{eventIndex}
+	</update>
+</mapper>

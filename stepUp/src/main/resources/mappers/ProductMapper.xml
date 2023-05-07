@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="proj.stepUp.mapper.productMapper">
+  	<insert id="insertProduct" parameterType="productVO">
+  		<![CDATA[insert into product_tb(prdCode, prdName, prdPrice, prdOname, prdRname, prdMadeIn, prdMt, prdCnt,
+  		prdQc, prdCare, prdMadeDate) 
+  		values(#{prdCode}, #{prdName}, #{prdPrice}, #{prdOname}, #{prdRname}, #{prdMadeIn}, #{prdMt}, #{prdCnt},
+  		#{prdQc}, #{prdCare}, #{prdMadeDate})]]>
+  		<selectKey resultType="int" order="AFTER" keyProperty="prdIndex">
+  			select MAX(prdIndex) from product_tb
+  		</selectKey>
+  	</insert>
+  	
+  	<select id="selectProductIndex" parameterType="int" resultType="productVO">
+  		select * from product_tb where prdDel != 'Y' and prdIndex = #{prdIndex}
+  	</select>
+  	
+  	<select id="selectProductByDate" resultType="productVO" parameterType="int">
+  		select prdIndex, prdCode, prdName, prdPrice, prdRname from product_tb where prdDel != 'Y'
+  		and datediff(now(), prdDate) BETWEEN 0 and 180
+  		order by prdDate desc limit 0, #{maxPrd}
+  	</select>
+  	
+  	<select id="selectProductSales" resultType="productVO" parameterType="int">
+  	SELECT p.prdIndex, p.prdCode, p.prdName, p.prdPrice, p.prdRname, COALESCE(SUM(o.orderItemStock), 0) as prdSales 
+  	FROM product_tb p left join Size_Tb s on p.prdIndex = s.prdIndex
+  	left join Order_Item_Tb o ON s.sizeIndex = o.sizeIndex
+  	where p.prdDel != 'Y'
+	GROUP BY p.prdIndex, p.prdName ORDER BY prdSales DESC limit 0, #{maxPrd};
+  	</select>
+  	
+  	<select id="selectBrandPage" parameterType="searchVO" resultType="productVO">
+  		select  p.prdIndex, p.prdCode, p.prdName, p.prdPrice, p.prdRname, SUM(oi.orderItemStock) as totalSales 
+  		from product_tb p left join Size_Tb s on p.prdIndex = s.prdIndex
+  		LEFT JOIN Order_Item_Tb oi ON s.sizeIndex = oi.sizeIndex
+  		where p.prdIndex = s.prdIndex
+  		and p.prdDel != 'Y'
+  		<if test="searchType != null">
+  			and p.prdCode like concat('%',#{searchType},'%')
+  		</if>
+  		<if test="priceMin != null and priceMax != null">
+  			and p.prdPrice BETWEEN #{priceMin, jdbcType=INTEGER} AND #{priceMax, jdbcType=INTEGER}	
+  		</if>
+  		<if test="pageType eq 'new'">
+  			and  datediff(now(), prdDate) BETWEEN 0 and 180
+  		</if>
+		<if test="sizeKind != null">
+		and ( 1 != 1
+		<foreach item="size" collection="sizeKind">
+			or s.sizeKind = #{size}
+		</foreach>
+		)
+		</if>
+		<if test="prdType != null">
+		and ( 1 != 1
+		<foreach item="Type" collection="prdType">
+			or p.prdCode LIKE concat('__', #{Type}, '%')
+		</foreach>
+		)
+		</if>		
+  		GROUP BY p.prdIndex
+  		<if test="sort != null">
+  			order by
+  			<choose>
+  				<when test="sort eq 'new'">p.prdDate desc</when>
+  				<when test="sort eq 'sale'">totalSales desc</when>
+  				<when test="sort eq 'low'">p.prdPrice</when>
+  				<when test="sort eq 'high'">p.prdPrice desc</when>
+  			</choose>
+  		</if>
+  		limit #{start}, #{perPage}
+  	</select>
+  	
+  	<select id="selectBrandToal" parameterType="searchVO" resultType="int">
+  		select count(DISTINCT p.prdIndex) as total from product_tb p left join Size_Tb s on p.prdIndex = s.prdIndex
+  		where p.prdIndex = s.prdIndex
+  		and p.prdDel != 'Y'
+  		<if test="searchType != null">
+  			and p.prdCode like concat('%',#{searchType},'%')
+  		</if>
+  		
+  		<if test="priceMin != null and priceMax != null">
+  			and p.prdPrice BETWEEN #{priceMin, jdbcType=INTEGER} AND #{priceMax, jdbcType=INTEGER}
+  		</if>
+  		<if test="pageType eq 'new'">
+  			and  datediff(now(), prdDate) BETWEEN 0 and 180
+  		</if>  		
+		<if test="sizeKind != null">
+		and ( 1 != 1
+		<foreach item="size" collection="sizeKind">
+			or s.sizeKind = #{size}
+		</foreach>
+		)
+		</if>
+		<if test="prdType != null">
+		and ( 1 != 1
+		<foreach item="Type" collection="prdType">
+			or p.prdCode LIKE concat('__', #{Type}, '%')
+		</foreach>
+		)
+		</if>
+  	</select>
+  	
+  	<select id="selectByPrdCode" parameterType="String" resultType="int">
+  		select count(*) from product_tb where prdCode = #{prdCode} and prdDel != 'Y'
+  	</select>
+  	
+  	<select id="selectManageCount" resultType="int" parameterType="searchVO">
+  		select count(*) from product_tb where 1 = 1 and prdDel != 'Y'
+  		<if test="searchValue != '' and searchType eq 'code'">
+  			and prdCode like concat('%', #{searchValue}, '%')
+  		</if>
+  		<if test="searchValue != '' and searchType eq 'name'">
+  			and prdName like concat('%', #{searchValue}, '%')
+  		</if>
+  	</select>
+  	
+  	<select id="selectManageList" parameterType="searchVO" resultType="productVO">
+  		select * from product_tb where 1 = 1 and prdDel != 'Y'
+  		<if test="searchValue != '' and searchType eq 'code'">
+  			and prdCode like concat('%', #{searchValue}, '%')
+  		</if>
+  		<if test="searchValue != '' and searchType eq 'name'">
+  			and prdName like concat('%', #{searchValue}, '%')
+  		</if>
+  		order by prdDate desc
+  		limit #{start}, #{perPage}
+  	</select>
+  	
+  	<update id="updatePrdDel" parameterType="int">
+  		update product_tb set prdDel = 'Y' where prdIndex = #{prdIndex}
+  	</update>
+  	
+  	<update id="updateProduct" parameterType="productVO">
+  		update product_tb set prdCode = #{prdCode}, prdName = #{prdName}, prdPrice = #{prdPrice},
+  		prdMadeIn = #{prdMadeIn}, prdMt = #{prdMt}, prdCnt = #{prdCnt}, prdQc = #{prdQc}, prdCare = #{prdCare},
+  		prdMadeDate = #{prdMadeDate}
+  		<if test="prdOname != null">
+  		, prdOname = #{prdOname}, prdRname = #{prdRname}
+  		</if>
+  		where prdIndex = #{prdIndex}
+  	</update>
+  </mapper>

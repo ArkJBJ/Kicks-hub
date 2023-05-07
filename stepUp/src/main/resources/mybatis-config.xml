@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0/EN"
+				"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<typeAliases>
+        <!-- VO 별칭 정보 -->
+        <typeAlias type="proj.stepUp.vo.UserVO" alias="userVO"/>
+        <typeAlias type="proj.stepUp.vo.FreeBoardVO" alias="freeboardVO"/>
+        <typeAlias type="proj.stepUp.vo.EventBoardVO" alias="eventboardVO"/>
+        <typeAlias type="proj.stepUp.vo.NoticeBoardVO" alias="noticeboardVO"/>
+        <typeAlias type="proj.stepUp.vo.SearchVO" alias="searchVO"/>
+        <typeAlias type="proj.stepUp.vo.ProductVO" alias="productVO"/>
+        <typeAlias type="proj.stepUp.vo.ProductImgVO" alias="productimgVO"/>
+        <typeAlias type="proj.stepUp.vo.SizeVO" alias="sizeVO"/>
+        <typeAlias type="proj.stepUp.vo.ReVO" alias="reVO"/>
+        <typeAlias type="proj.stepUp.vo.ReviewVO" alias="reviewVO"/>
+        <typeAlias type="proj.stepUp.vo.MarkVO" alias="markVO"/>
+        <typeAlias type="proj.stepUp.vo.CartVO" alias="cartVO"/>
+        <typeAlias type="proj.stepUp.vo.OrderVO" alias="orderVO"/>
+        <typeAlias type="proj.stepUp.vo.SlideVO" alias="slideVO"/>
+        <typeAlias type="proj.stepUp.vo.OrderItemVO" alias="orderItemVO"/>
+        <typeAlias type="proj.stepUp.vo.QnaVO" alias="QnaVO"/>
+    </typeAliases>
+
+</configuration>

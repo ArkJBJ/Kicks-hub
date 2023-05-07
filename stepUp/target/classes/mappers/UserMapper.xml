@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="proj.stepUp.mapper.userMapper">
+ 	<select id="checkId" resultType="int" parameterType="String">
+ 		select count(*) from user_tb where userid = #{userId}
+ 	</select>
+ 	
+ 	<select id="checkNick" resultType="int" parameterType="String">
+ 		select count(*) from user_tb where usernick = #{userNick}	
+ 	</select>
+ 	
+ 	<insert id="insertUser" parameterType="userVO">
+ 		insert into user_tb
+ 		(userid , userpw, username, usernick, userphone, useraddr, userzipcode, userphac, useraddrdetail, usermail, lochk, evechk)
+ 		values (#{userId}, md5(#{userPw}), #{userName}, #{userNick}, #{userPhone},#{userAddr}, #{userZipCode}, #{userPhAc}, #{userAddrDetail}, #{userMail}, #{loChk}, #{eveChk})
+ 	</insert>
+
+ 	<select id="login" resultType="userVO" parameterType="userVO">
+ 		select userindex ,userid, username, usernick, usergrade from user_tb where userid = #{userId} and userpw = md5(#{userPw})
+ 	</select>
+ 	
+ 	<select id="mypage" resultType="userVO" parameterType="String">
+ 		select * from user_tb where userid = #{userId}
+ 	</select>
+ 
+ 	<update id="mypageUpdate" parameterType="userVO">
+ 		update user_tb set username = #{userName}
+ 		                 , usernick = #{userNick}
+ 	<if test="userPw != null and userPw != ''">
+ 						 , userpw = md5(#{userPw})
+ 	</if>
+ 		                 , userphone = #{userPhone}
+ 		                 , usermail = #{userMail}
+ 		                 , userphac = #{userPhAc}
+ 		                 , userzipcode = #{userZipCode}
+ 		                 , useraddr = #{userAddr}
+ 		                 , useraddrdetail = #{userAddrDetail} 
+ 		             where userId = #{userId}
+ 	</update>
+ 	
+ 	<select id="kakaoLogin" resultType="userVO" parameterType="String">
+ 		select userindex ,userid, username, usernick, usergrade, userKakaoId from user_tb where userKakaoId = #{userKakaoId} 
+ 	</select>
+ 	
+ 	<update id="upDateKakaoId" parameterType="userVO">
+ 		update user_tb set userKakaoId = #{userKakaoId} where userindex = #{userIndex}
+ 	</update>
+ 	
+ 	<select id="naverLogin" resultType="userVO" parameterType="String">
+ 		select userindex ,userid, username, usernick, usergrade, userNaverId from user_tb where userNaverId = #{userNaverId} 
+ 	</select>
+ 	
+ 	<update id="upDateNaverId" parameterType="userVO">
+ 		update user_tb set userNaverId = #{userNaverId} where userindex = #{userIndex}
+ 	</update>
+ 	
+ 	<update id="userDelete" parameterType="String">
+		update user_tb set usergrade = 'Q', userNaverId = NULL, userKakaoId = NULL where userid = #{value}
+	</update>
+	
+ 	<select id="findId" resultType="userVO" parameterType="userVO">
+ 		SELECT userId, userGrade FROM user_tb
+		where userName = #{userName} and userPhone = #{userPhone}
+ 	</select>
+ 	
+ 	<select id="selectIndex" resultType="userVO" parameterType="int">
+ 		SELECT userIndex, userName, userPhone, userAddr, userZipCode, userAddrDetail 
+		FROM user_tb where userIndex = #{userIndex}
+ 	</select>
+ 	
+ 	<select id="findPw" resultType="userVO" parameterType="userVO">
+ 		SELECT userIndex
+		FROM user_tb 
+		where userId = #{userId} 
+		and  userName = #{userName} 
+		and userPhone = #{userPhone}
+		and userGrade != 'Q'
+ 	</select>
+ 	
+ 	<update id="chgPw" parameterType="UserVO">
+		update user_tb set userPw = md5(#{userPw}) where userIndex = #{userIndex}
+	</update>
+ 	
+ 	<select id="cntTotal" resultType="userVO" parameterType="userVO">
+ 		select count(*) over () as total from user_tb
+ 			<if test='searchType != null and searchType eq "title"'>
+ 				where prdName like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "content"'>
+ 				where prdCnt like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='searchType != null and searchType eq "writer"'>
+ 				where userNick like concat('%',#{searchValue},'%')
+ 			</if>
+ 			<if test='userIndex != 0'>  
+ 				where userIndex = #{userIndex}
+ 			</if>
+ 	</select>
+	
+	<select id="selectSNS" parameterType="int" resultType="userVO">
+		select userNaverId, userKakaoId from user_tb where userIndex = #{userIndex}
+	</select>
+	
+	<update id="updateDisconnectNaver" parameterType="int">
+		update user_tb set userNaverId = NULL where userIndex = #{userIndex}
+	</update>
+	
+	<update id="updateDisconnectKakao" parameterType="int">
+		update user_tb set userKakaoId = NULL where userIndex = #{userIndex}
+	</update>
+ </mapper>

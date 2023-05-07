@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="proj.stepUp.mapper.reviewMapper">
+	<insert id="insertRivew" parameterType="reviewVO">
+		insert into review_tb (reviewContent, reviewScore, userIndex, prdIndex) values(#{reviewContent}, #{reviewScore}, #{userIndex}, #{prdIndex})
+	</insert>
+	  
+	<select id="selectReview" resultType="reviewVO" parameterType="reviewVO">
+		SELECT * FROM review_tb r, user_tb u where r.userIndex = u.userIndex and prdIndex = #{prdIndex} order by reviewDate desc limit #{start}, #{perPage}
+	</select>
+	
+	<select id="selectCount" resultType="int" parameterType="int">
+		select count(*) as total from review_tb where prdIndex = #{prdIndex}
+	</select>
+	
+	<select id="selectCheckReview" resultType="int" parameterType="reviewVO">
+		select count(*) from review_tb where userIndex = #{userIndex} and prdIndex = #{prdIndex}
+	</select>
+	
+	<delete id="deleteReview" parameterType="reviewVO">
+		delete from review_tb where reviewIndex = #{reviewIndex}
+	</delete>
+	
+	<select id="selectReviewModify" resultType="reviewVO" parameterType="int">
+		select * from review_tb where reviewIndex = #{reviewIndex}
+	</select>
+	
+	<update id="updateReview" parameterType="reviewVO">
+		update review_tb set reviewContent = #{reviewContent}, reviewScore = #{reviewScore} where reviewIndex = #{reviewIndex}
+	</update>
+	
+	<select id="selectMyReview" parameterType="searchVO" resultType="reviewVO">
+		select * from review_tb r, product_tb p 
+		where r.prdIndex = p.prdIndex 
+		and r.userIndex = #{userIndex}
+		order by r.reviewDate desc
+		limit #{start}, #{perPage}
+	</select>
+	
+	<select id="myReviewTotalCnt" resultType="int" parameterType="searchVO">
+		select count(*) from review_tb r, product_tb p
+		where r.prdIndex = p.prdIndex 
+		and r.userIndex = #{userIndex} 
+	</select>
+  </mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+ <mapper namespace="proj.stepUp.mapper.adminMapper">
+	<insert id="slideInsert" parameterType="SlideVO">
+		insert into slide_tb(
+			slideNum 
+			, slideFileOname 
+			, slideFileRname
+			, slideUrl
+			)values(
+			#{slideNum} 
+			, #{slideFileOname} 
+			, #{slideFileRname} 
+			, #{slideUrl} 
+			)
+	</insert>
+	
+	<select id="selectSlide" resultType="SlideVO">
+		SELECT *
+		FROM slide_tb
+		WHERE slideNum IN ('1', '2', '3', '4')
+		  AND slideIndex IN (
+		    SELECT MAX(slideIndex)
+		    FROM slide_tb
+		    WHERE slideNum IN ('1', '2', '3', '4')
+		    GROUP BY slideNum
+		)
+		ORDER BY slideNum asc;
+	</select>
+</mapper>

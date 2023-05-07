@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="proj.stepUp.mapper.productImgMapper">
+  	<insert id="insertProductImg" parameterType="productimgVO">
+  		insert into product_img_tb (prdIndex, prdImgOname, prdImgRname) values (#{prdIndex}, #{prdImgOname}, #{prdImgRname})
+  	</insert>
+  	
+  	<!-- 상품 인덱스를 이용하여 제품 서브이미지 검색 -->
+  	<select id="selectByProductIndex" parameterType="int" resultType="productimgVO">
+  		select * from product_img_tb where prdIndex = #{prdIndex}
+  	</select>
+  	
+  	<update id="updateSubImg" parameterType="productimgVO">
+  		update product_img_tb set prdImgOname = #{prdImgOname}, prdImgRname = #{prdImgRname} where prdImgIndex = #{prdImgIndex}
+  	</update>
+  </mapper>

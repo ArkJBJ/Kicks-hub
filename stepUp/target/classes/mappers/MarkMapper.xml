@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="proj.stepUp.mapper.markMapper">
+  	<insert id="insertMark" parameterType="markVO">
+  		insert into mark_tb (userIndex, prdIndex) values(#{userIndex}, #{prdIndex})
+  	</insert>
+  	
+  	<delete id="deleteMark" parameterType="markVO">
+  		delete from mark_tb where userIndex = #{userIndex} and prdIndex = #{prdIndex}
+  	</delete>
+  	
+  	<select id="selectMarkByAll" resultType="markVO" parameterType="markVO">
+  		select * from mark_tb where userIndex = #{userIndex} and prdIndex = #{prdIndex}
+  	</select>
+  	
+  	<select id="marklist" resultType="markVO" parameterType="markVO">
+ 		SELECT *
+		  FROM product_tb p, user_tb u, mark_tb m
+		 WHERE m.userIndex = u.userIndex
+		   AND u.userIndex = #{userIndex} 
+		   AND p.prdIndex = m.prdIndex
+		   AND p.prdDel != 'Y'
+		ORDER by m.markIndex desc
+		LIMIT #{start}, #{perPage}
+	</select>
+	
+	<select id="cntTotal" resultType="int" parameterType="int">
+ 		select count(*) as total from mark_tb m, product_tb p
+			where m.prdIndex = p.prdIndex
+			and m.userIndex = #{userIndex}
+			and p.prdDel != 'Y'
+ 	</select>
+ 	
+  </mapper>
